@@ -3,6 +3,7 @@ package org.baeldung.config;
 import org.baeldung.security.FacebookSignInAdapter;
 import org.baeldung.security.FacebookConnectionSignup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,8 @@ import org.springframework.social.connect.web.ProviderSignInController;
 @ComponentScan(basePackages = { "org.baeldung.security" })
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+//	@Qualifier("myUserDetailsService")
+	@Qualifier("customUserDetailsService")
     @Autowired
     private UserDetailsService userDetailsService;
 
