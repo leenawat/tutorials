@@ -12,17 +12,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class FacebookConnectionSignup implements ConnectionSignUp {
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Override
-    public String execute(Connection<?> connection) {
-        System.out.println("signup === ");
-        final User user = new User();
-        user.setUsername(connection.getDisplayName());
-        user.setPassword(randomAlphabetic(8));
-        userRepository.save(user);
-        return user.getUsername();
-    }
+	@Override
+	public String execute(Connection<?> connection) {
+		System.out.println("signup === ");
+		String username = connection.getDisplayName();
+		String password = randomAlphabetic(8);
+		System.out.println("user : " + username + ", password : " + password);
+		final User user = new User();
+		user.setUsername(username);
+		user.setPassword(password);
+		userRepository.save(user);
+		return user.getUsername();
+	}
 
 }
