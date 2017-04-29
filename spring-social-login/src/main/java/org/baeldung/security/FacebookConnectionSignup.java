@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.baeldung.UserService;
 import org.baeldung.persistence.dao.UserRepository;
@@ -17,9 +18,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class FacebookConnectionSignup implements ConnectionSignUp {
 
-    @Autowired
-    private UserService userService;
-    
+	@Autowired
+	private UserService userService;
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -27,36 +28,44 @@ public class FacebookConnectionSignup implements ConnectionSignUp {
 	public String execute(Connection<?> connection) {
 		System.out.println("signup === ");
 		Facebook facebook = (Facebook) connection.getApi();
-        String [] fields = { "id", "email",  "first_name", "last_name" };
-        FacabookUser facabookUser = facebook.fetchObject("me", FacabookUser.class, fields);
-        
+		String[] fields = { "id", "email", "first_name", "last_name" };
+		FacabookUser facabookUser = facebook.fetchObject("me", FacabookUser.class, fields);
+
 		String username = connection.getDisplayName();
 		String password = randomAlphabetic(8);
-		System.out.println("user : " + username + ", password : " + password);
-		final User user = new User();
 
-        Map<String, Object> userMap = new HashMap<String, Object>();
-        userMap.put("email", facabookUser.getEmail());
-        userMap.put("username", facabookUser.getFirst_name());
-        userMap.put("password", password);
-        userService.save(userMap);
-		
-		user.setUsername(username);
-		user.setPassword(password);
-		userRepository.save(user);
-		return user.getUsername();
+		if (facabookUser.getFirst_name().isEmpty()) {
+			System.out.println("user : " + username + ", password : " + password);
+			final User user = new User();
+
+			Map<String, Object> userMap = new HashMap<String, Object>();
+			userMap.put("email", facabookUser.getEmail());
+			userMap.put("username", facabookUser.getFirst_name());
+			userMap.put("password", password);
+			userService.save(userMap);
+
+			user.setUsername(username);
+			user.setPassword(password);
+			userRepository.save(user);
+			return user.getUsername();
+		} else {
+			Map<String, Object> userMap = userService.getUserByUsername(facabookUser.getFirst_name());
+			return Objects.toString(userMap.get("username"));
+		}
 	}
 
-//	private UserRegistrationForm toUserRegistrationObject(final String userId, final SocialProvider socialProvider,
-//			FacabookUser facebookUser) {
-//		logger.info("userid : " + userId);
-//		logger.info("facebookUser.getUserId() : " + facebookUser.getId());
-//		logger.info("");
-//		String password = randomAlphabetic(8);
-//		System.out.println("password : " + password);
-//		return UserRegistrationForm.getBuilder().addUserId(userId).addFirstName(facebookUser.getFirst_name())
-//				.addEmail(facebookUser.getEmail()).addPassword(password).addSocialProvider(socialProvider).build();
-//	}
+	// private UserRegistrationForm toUserRegistrationObject(final String
+	// userId, final SocialProvider socialProvider,
+	// FacabookUser facebookUser) {
+	// logger.info("userid : " + userId);
+	// logger.info("facebookUser.getUserId() : " + facebookUser.getId());
+	// logger.info("");
+	// String password = randomAlphabetic(8);
+	// System.out.println("password : " + password);
+	// return
+	// UserRegistrationForm.getBuilder().addUserId(userId).addFirstName(facebookUser.getFirst_name())
+	// .addEmail(facebookUser.getEmail()).addPassword(password).addSocialProvider(socialProvider).build();
+	// }
 
 }
 
